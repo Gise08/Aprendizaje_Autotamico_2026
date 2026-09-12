@@ -1,0 +1,62 @@
+[
+    {
+        "id_cliente": 101,
+        "nombre": "Ana Pérez",
+        "email": "ana@mail.com",
+        "ciudad": "Ushuaia"
+    },
+    {
+        "id_cliente": 102,
+        "nombre": "Carlos Gómez",
+        "email": "carlos@mail.com",
+        "ciudad": "Córdoba"
+    },
+    {
+        "id_cliente": 103,
+        "nombre": "Lucía Díaz",
+        "email": "lucia@mail.com",
+        "ciudad": "Rosario"
+    },
+    {
+        "id_cliente": 104,
+        "nombre": "Martín Silva",
+        "email": "martin@mail.com",
+        "ciudad": "Buenos Aires"
+    },
+    {
+        "id_cliente": 105,
+        "nombre": "Valeria Rossi",
+        "email": "valeria@mail.com",
+        "ciudad": "Mendoza"
+    },
+    {
+        "id_cliente": 106,
+        "nombre": "Esteban Vega",
+        "email": "esteban@mail.com",
+        "ciudad": "Salta"
+    },
+    {
+        "id_cliente": 107,
+        "nombre": "Florencia Ruiz",
+        "email": "flor@mail.com",
+        "ciudad": "Neuquén"
+    },
+    {
+        "id_cliente": 108,
+        "nombre": "Gonzalo Morales",
+        "email": "gonzalo@mail.com",
+        "ciudad": "Tucumán"
+    },
+    {
+        "id_cliente": 109,
+        "nombre": "Camila Benítez",
+        "email": "camila@mail.com",
+        "ciudad": "La Plata"
+    },
+    {
+        "id_cliente": 110,
+        "nombre": "Joaquín Castro",
+        "email": "joaquin@mail.com",
+        "ciudad": "Mar del Plata"
+    }
+]
