@@ -1,40 +1,41 @@
-# Descripción del Dataset y Origen de los Datos
+# Descripción del Dataset, Origen de los Datos y Marco Metodológico
 
-## 1. Origen y Fuente de los Datos
-* **Organismo de procedencia:** Ente Nacional Regulador del Gas (ENARGAS), organismo autárquico regulador bajo la órbita de la Secretaría de Energía de la Nación.
-* **Portal de publicación:** Portal Nacional de Datos Públicos (`datos.gob.ar` / Datos Abiertos ENARGAS).
-* **Catálogo:** Estadísticas de Reclamos de Usuarios del Servicio de Distribución de Gas por Redes.
-* **Período temporal:** Enero a Agosto de 2026 (meses 1 a 8).
-* **Licencia:** Dominio público (Open Data), libre acceso y reutilización con fines académicos y de investigación.
+## 1. Origen, Trazabilidad y Licenciamiento
+* **Organismo emisor:** Ente Nacional Regulador del Gas (ENARGAS).
+* **Portal de procedencia:** Portal Nacional de Datos Abiertos de la República Argentina (`datos.gob.ar`) / Catálogo de Datos Abiertos de ENARGAS.
+* **Conjunto de datos:** Estadísticas de Reclamos de Usuarios del Servicio de Distribución de Gas por Redes.
+* **Enlace de descarga:** `https://datos.gob.ar/dataset/enargas-reclamos-usuarios-servicio-distribucion-gas-por-redes`
+* **Fecha de extracción:** Octubre de 2026.
+* **Ventana temporal:** Enero a Agosto de 2026 (meses 1 a 8).
+* **Condiciones de uso y régimen legal:** El conjunto se publica bajo la **Política de Datos Abiertos de la República Argentina** (Ley N° 27.275 de Acceso a la Información Pública y Decreto N° 117/2016). Constituye información pública gubernamental accesible sin restricciones comerciales para reutilización y fines de investigación, reconociendo la fuente oficial (no constituye transferencia patrimonial al dominio público en términos registrales).
 
 ---
 
-## 2. Unidad de Análisis y Estructura del Dataset
+## 2. Unidad de Análisis y Rol de la Variable `reclamo_cantidad`
 
-### Distinción: Registros Agregados vs. Reclamos Unitarios
-El conjunto de datos original consta de **3.454 filas** y **9 columnas**, sin presencia de valores nulos. 
+### Naturaleza de los Datos Agregados
+El conjunto contiene **3.454 registros agregados**. Cada fila resume mensualmente el volumen total de reclamos (`reclamo_cantidad`) que compartieron de manera sincrónica idéntica combinación de atributos (`reclamo_mes_nro`, `reclamo_prestadora`, `reclamo_provincia`, `reclamo_grupo`, `reclamo_via_ingreso`) y que obtuvieron la misma resolución administrativa (`reclamo_resolucion`).
 
-Cada fila constituye un **resumen mensual agregado** que agrupa a los usuarios que compartieron idénticos atributos (mes, distribuidora, provincia, motivo y canal de atención) y obtuvieron la misma resolución. El volumen real total de reclamos auditados en el período asciende a **209.491 reclamos**, resultante de sumar la variable `reclamo_cantidad`.
+El total consolidado es de **209.491 reclamos**.
 
-### Balance de Clases y Tratamiento Metodológico de `reclamo_cantidad`
-* **Distribución a nivel de filas agregadas:** 1.956 filas correspondientes a resoluciones *Improcedentes* (56,63%) frente a 1.498 filas *Procedentes* (43,37%).
-* **Distribución a nivel de reclamos reales (ponderada por cantidad):** 148.647 reclamos *Improcedentes* (70,96%) frente a 60.844 reclamos *Procedentes* (29,04%).
-
-**Exclusión de `reclamo_cantidad` como variable predictora:**
-El objetivo del modelo consiste en estimar si un nuevo reclamo resultará *Procedente* o *Improcedente* al momento de su recepción. La variable `reclamo_cantidad` se construye a mes vencido, una vez concluida la evaluación administrativa. Utilizarla como variable de entrada ($X$) provocaría **fuga de datos (data leakage)**. Por ende, para el entrenamiento se adopta la desagregación de instancias (o ponderación por frecuencia), excluyendo `reclamo_cantidad` de los predictores.
+### Clarificación Metodológica: Expansión vs. Prevención de Data Leakage
+1. **Alcance de la expansión de filas:** La replicación de filas no crea observaciones genuinamente independientes ni añade variabilidad o atributos individuales a nivel usuario que el registro oficial no haya relevado; reproduce la función de probabilidad conjunta empírica de los reclamos. Para mantener trazabilidad rigurosa, cada registro conserva el `id_registro_agregado` que referencia a su fila original.
+2. **Tratamiento del Data Leakage:** La prevención de la fuga de información radica estrictamente en **excluir `reclamo_cantidad` de la matriz de predictores ($X$)**. `reclamo_cantidad` es un agregado acumulado a mes vencido una vez cerrado el procesamiento administrativo; no está disponible al momento en que un usuario presenta un trámite.
+3. **Temporalidad del registro:** La variable `reclamo_mes_nro` registra el mes de reporte consolidado administrativo ante la prestadora. Para evaluar la capacidad predictiva sobre eventos futuros, se adopta una partición estrictamente cronológica.
 
 ---
 
 ## 3. Diccionario de Variables
 
-| Variable | Tipo de Dato | Rol Metodológico | Descripción |
+| Variable | Tipo de Dato | Rol | Definición y Justificación |
 | :--- | :--- | :--- | :--- |
-| `reclamo_ano` | Entero (`int64`) | Informativo | Año de registro (constante: 2026). Sin varianza para modelado. |
-| `reclamo_mes_nro` | Entero (`int64`) | Predictor ($X$) | Número de mes de ingreso (1 a 8). |
-| `reclamo_mes_nombre` | Texto (`object`) | Descriptivo | Nombre del mes (Enero a Agosto). Redundante con `reclamo_mes_nro`. |
-| `reclamo_prestadora` | Texto (`object`) | Predictor ($X$) | Empresa prestadora receptora (9 empresas licenciatarias). |
-| `reclamo_provincia` | Texto (`object`) | Predictor ($X$) | Jurisdicción provincial donde radica el suministro (24 provincias). |
-| `reclamo_grupo` | Texto (`object`) | Predictor ($X$) | Tipología del reclamo (Facturación, Suministro, Prestaciones). |
-| `reclamo_via_ingreso` | Texto (`object`) | Predictor ($X$) | Canal de recepción (Telefónico, Chat, Web, Personal, etc.). |
-| `reclamo_resolucion` | Texto (`object`) | **Target ($y$)** | Dictamen final: `Procedente` o `Improcedente`. |
-| `reclamo_cantidad` | Entero (`int64`) | Ponderador | Total de reclamos agrupados en dicha combinación estadística. |
+| `id_registro_agregado` | Entero (`int64`) | Identificador | Índice original de la tabla agregada para garantizar trazabilidad. |
+| `reclamo_ano` | Entero (`int64`) | Informativo | Año 2026. Constante sin poder de discriminación (excluido de $X$). |
+| `reclamo_mes_nro` | Entero (`int64`) | Predictor ($X$) / Eje Temporal | Mes (1 a 8). Se analiza tanto su rol de partición temporal como su tratamiento categórico para captar estacionalidad invernal. |
+| `reclamo_mes_nombre` | Texto (`object`) | Descriptivo | Redundante con `reclamo_mes_nro` (excluido de $X$). |
+| `reclamo_prestadora` | Categórico (`object`) | Predictor ($X$) | Distribuidora que recibió el trámite (9 licenciatarias). |
+| `reclamo_provincia` | Categórico (`object`) | Predictor ($X$) | Jurisdicción donde radica el suministro (24 jurisdicciones). |
+| `reclamo_grupo` | Categórico (`object`) | Predictor ($X$) | Tipo de motivo (Facturación, Suministro, Prestaciones). |
+| `reclamo_via_ingreso` | Categórico (`object`) | Predictor ($X$) | Canal de recepción (Telefónico, Web, Presencial, etc.). |
+| `reclamo_resolucion` | Binario (`int64`) | **Target ($y$)** | Resolución dictada: 1 = Procedente, 0 = Improcedente. |
+| `reclamo_cantidad` | Entero (`int64`) | Ponderador | Frecuencia de casos. Excluida de $X$ por data leakage. |
